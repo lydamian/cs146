@@ -1,0 +1,46 @@
+#!/bin/bash
+
+#Filename: C-interp
+# Description: Write a short shell script claled "C-interp" which
+# is intended to have soft links point at it, and pretends
+# to be a C language interpreter. That is, if you have C file "foo.c", then
+# you would make a link "ln -s C-interp foo". Then, what C-interp does, when called
+# as "foo", is to compile "foo.c" and run the resulting executable on the
+# arguments given to "foo".
+
+echo "C-interp starting"
+
+Filename=$0
+TEMP_DIR=''
+
+# ====== FUNCTIONS =================================
+gen_rand_dirname(){
+	Rand=$RANDOM
+	while [ -e "/tmp/$Rand" ]; do
+		Rand=$RANDOM
+	done
+	TEMP_DIR="/temp/$Rand"	
+}
+
+
+
+#====== END FUNCTION DECLARATIONS =================
+
+# reformat filename - mabye dont have to do this step.
+
+# ensure that filename is a valid file
+
+# STORE ALL EXECUTABLES AND TEMP FILES IN A TEMPORARY DIRECTORY
+gen_rand_dirname
+
+# make the random directory
+mkdir $TEMP_DIR
+
+# compile Filename.c and store in tempdir
+gcc "$Filename.c" -o "$TEMP_DIR/$Filename"
+
+# run the executable
+$TEMP_DIR/$Filename $@
+
+# cleanup - delete all temporary files and directories
+rm -r $TEMP_DIR
