@@ -15,28 +15,21 @@ TEMP_DIR=''
 
 # ====== FUNCTIONS =================================
 gen_rand_dirname(){
-	Rand=$RANDOM
-	while [ -e "/tmp/$Rand" ]; do
-		Rand=$RANDOM
-	done
-	TEMP_DIR="/tmp/$Rand"	
+	TEMP_DIR=$(mktemp -d /tmp/XXX) || { echo "Failed to create temp file"; exit 1; }
 }
 
-
-
+cleanup(){
+	rm -r $TEMP_DIR
+}
 #====== END FUNCTION DECLARATIONS =================
-
-# reformat filename - mabye dont have to do this step.
 
 # ensure that filename is a valid file
 
 # STORE ALL EXECUTABLES AND TEMP FILES IN A TEMPORARY DIRECTORY
 gen_rand_dirname
 
-# make the random directory
-mkdir $TEMP_DIR
-
 # create a trap to catch signals, and delete the temporary dir
+trap cleanup 1 2 3 15
 
 # compile Filename.c and store in tempdir
 gcc "$Filename.c" -o "$TEMP_DIR/$Filename"
@@ -45,4 +38,4 @@ gcc "$Filename.c" -o "$TEMP_DIR/$Filename"
 $TEMP_DIR/$Filename $@
 
 # cleanup - delete all temporary files and directories
-rm -r $TEMP_DIR
+cleanup
