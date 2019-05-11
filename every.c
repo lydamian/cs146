@@ -12,7 +12,7 @@
 /*	GLOBALS	  */
 int M = 1;
 int N = 1;
-
+const int BUF_LEN = 100;
 
 const char *DEFAULT_OPTIONS = "-1,1";
 
@@ -89,46 +89,138 @@ int is_valid_options(int m, int n){
 	return 0;
 }
 
-// Check whether the every environment variable is specified
-int is_every(){
-	return -1;
+// gets the environment variable every
+char *get_every(){
+	return getenv("EVERY");
 }
 
-// get file arguments
-char **get_files(char *argv[]){
-	return NULL;
+int proc_stdin(int m, int n){
+	char buf[BUF_LEN];
+	int bVal = 1;
+
+	while(bVal){
+		if(fgets(buf, BUF_LEN, stdin) == NULL){
+			return 1;
+		}
+		printf("%s", buf);
+	}
+	return 1;
 }
 
-int proc_stdin(char *options){
-	return -1;
+void pnl(){
+	printf("\n");
+}
+
+int print_n(FILE *in, int n){
+	char buf[BUF_LEN];
+	for(int i = 0; i < n; i++){
+		if(fgets(buf, BUF_LEN, in) == NULL){
+			return 0;
+		}
+		printf("%s",buf);
+	}
+	return 1;
+	
+}
+
+int skip_n(FILE *in, int n){
+	char buf[BUF_LEN];
+	for(int i = 0; i < n; i++){
+		if(fgets(buf, BUF_LEN, in) == NULL){
+			return 0;
+		}
+	}
+	return 1;
+}
+
+// prints m lines out of every n, until EOF is reached
+// return values: 1 for EOF, -1 for error
+int print_lines(char *filename, int n, int m){
+	//local variables
+	FILE *in = NULL;
+	int bVal = 1;
+	int diff = n-m ;
+	
+	// try opening file
+	in = fopen(filename, "r");
+	if(in == NULL){
+		return -1;
+	}
+	
+	// print m our of n
+	printf("%s exists\n", filename);
+	while(bVal){
+		if(print_n(in, m) == 0){
+			return 1;
+			bVal = 0;
+		}
+		if(skip_n(in, diff) == 0){
+			return 1;
+			bVal = 0;
+		}
+	}
+	return 1;
 }
 
 int main(int argc, char *argv[], char *envp[]){
 	printf("Hello World, every.c here...\n");
 	// local variables
-
-	// check no args given
-	if(argc == 1){ // process_stdin
-		return 0;
-	}
+	int is_option = 0;
+	int curr_position = 0;
+	int buf_len = 100;
+	char buf[buf_len];
 
 	// handle options
 	if(process_options(argv, argc) == 1){ // there are options
 		printf("The current options are: %d, %d\n", N, M);	
+		if(!is_valid_options(M,N)){
+			printf("Invalid Options\n");
+			exit(1);
+		}
+		is_option = 1;
 	}
-	else if(is_every()){ // check is every env var is specified
+	else if(get_every() != NULL){ // check is every env var is specified
+		printf("EVERY is %s\n", get_every());	
+		char *every_args[3];
+		every_args[0] = "";
+		every_args[1] = get_every();
+		every_args[2] = NULL;
 
+		if(process_options(every_args, 2) == 1){ // there are options
+			printf("The current options are: %d, %d\n", N, M);	
+			if(!is_valid_options(M,N)){
+				printf("Invalid Options\n");
+				exit(1);
+			}
+		}
 	}
 	else{ // default option settings
-
+		printf("Default options: m = %d, n = %d\n", M, N);
+		if(!is_valid_options(M,N)){
+			printf("Invalid default Options, fix the code, stupid programmer\n");
+			exit(1);
+		}
 	}
+
+	// get the list of files
+	printf(" ---- printing files ---- \n");
+
+	pnl();
 
 	// handle each file appropriately
-	if(1){
+	if(argv[is_option+1] != NULL){
 		printf("handling files...\n");
+		for(int i = is_option+1; argv[i] != NULL; i++){
+			printf("%s ", argv[i]);
+			if(print_lines(argv[i], N, M) < 0){
+				printf("Error, reading from file, mabye doesnt exist?\n");
+				exit(1);
+			}
+		}
 	}
-	else if(0){ // process from stdin
+	else{ // process from stdin
 		printf("reading from stdin\n");
+		proc_stdin(M, N);
 	}
 	return 0;
 }
