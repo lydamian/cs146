@@ -66,7 +66,10 @@ int unrm(char *curr_path){
 	DIR *dir;
 	struct dirent *p;;
 	char response;
-	char *temp = strcat(TRASH, "/");
+	char trash_temp[100];
+	strcpy(trash_temp, get_trash());
+	char *temp = strcat(trash_temp, "/");
+	char oldpath[200];
 
 	// opening directory
 	dir = opendir(TRASH);
@@ -78,7 +81,7 @@ int unrm(char *curr_path){
 	// iterating through all files int the directory
 	while((p = readdir(dir)) != NULL){
 		if((strcmp(p->d_name, ".") != 0) && (strcmp(p->d_name, "..") != 0)){
-			char *oldpath = strcat(temp, p->d_name);		
+			sprintf(oldpath, "%s%s",temp, p->d_name);		
 			if(naming_collision(p->d_name)){
 				printf("File '%s' already exists in current directory overwrite? y/n\n", p->d_name);
 				scanf("%c", &response);
@@ -92,7 +95,7 @@ int unrm(char *curr_path){
 			}
 			else{
 				printf("there is no naming collision\n");
-				printf("%s \n", p->d_name);
+				printf("%s \n", oldpath);
 				if(rename(oldpath, p->d_name) < 0){
 					printf("error removing\n");
 					return -1;

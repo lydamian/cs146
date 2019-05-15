@@ -62,7 +62,9 @@ if you use "global trash directory", then
 */
 int safe_rm(char *file){
 	printf("safe removing %s\n", file);
-	char *newpath = strcat(get_trash(), "/");
+	char temp[100];
+	strcpy(temp, get_trash());
+	char *newpath = strcat(temp, "/");
 	newpath = strcat(newpath, file);
 	printf("the new path is: %s\n", newpath);
 	if(rename(file, newpath) < 0){
