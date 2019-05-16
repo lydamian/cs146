@@ -8,14 +8,12 @@
 # as "foo", is to compile "foo.c" and run the resulting executable on the
 # arguments given to "foo".
 
-echo "C-interp starting"
-
 Filename=$0
 TEMP_DIR=''
 
 # ====== FUNCTIONS =================================
 gen_rand_dirname(){
-	TEMP_DIR=$(mktemp -d /tmp/XXX) || { echo "Failed to create temp file"; exit 1; }
+	TEMP_DIR=$(mktemp -d /tmp/XXX) ||  { echo "Failed to create temp file"; exit 1; }
 }
 
 cleanup(){

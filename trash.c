@@ -13,6 +13,7 @@
 int is_regular_file(const char *path);
 int isDirectory(const char *path);
 char *get_trash();
+int remove_directory(const char *directory);
 
 int main(int argc, char *argv[]){
 	printf("Hello, from trash.c\n");
@@ -36,11 +37,13 @@ int main(int argc, char *argv[]){
 			sprintf(path, "%s/%s", get_trash(), dir->d_name);	
 			printf("%s\n", path);
 			// checking if directory or regular file remove
-			if(isDirectory(dir->d_name)){
+			if(isDirectory(path) > 0){
 				printf("%s is a directory\n", path);
+				remove_directory(path);
 			}
-			else if(is_regular_file(dir->d_name)){
+			else if(is_regular_file(path) > 0){
 				printf("%s is a regular file\n", path);
+				unlink(path);
 			}
 			else{
 				printf("WHAT KIND OF FILE IS THIS????\n");
@@ -55,18 +58,50 @@ int main(int argc, char *argv[]){
 
 
 int isDirectory(const char *path) {
-   struct stat statbuf;
-   if (stat(path, &statbuf) != 0)
-       return 0;
-   return S_ISDIR(statbuf.st_mode);
+	struct stat sb;
+	if (stat(path, &sb) == 0 && S_ISDIR(sb.st_mode))
+	{
+		return 1;
+	}
+	return 0;
 }
 
 int is_regular_file(const char *path)
 {
-   struct stat statbuf;
-   if (stat(path, &statbuf) != 0)
-       return 0;
-    return S_ISREG(statbuf.st_mode);
+	struct stat sb;
+	if (stat(path, &sb) == 0 && S_ISREG(sb.st_mode))
+	{
+		return 1;
+	}
+	return 0;
+}
+//  Delete the directories by recursion, files straight away.
+int remove_directory(const char *directory){
+	//local variables
+	DIR *d;
+	struct dirent *dir;
+	char path[200];
+
+	if((d = opendir(directory)) < 0){
+		return -1;
+	}
+
+    //for every item in d:
+	while((dir = readdir(d)) != NULL){
+		sprintf(path, "%s/%s", directory, dir->d_name);
+
+		//    if item is a directory: delDir (item)
+		if(isDirectory(path)){
+			printf("this is a directory\n");
+			remove_directory(path);
+		}
+		else{
+			printf("this is a regular file");
+		}
+	}
+
+    //rmdir(directory);
+	return 1;
 }
 
 char *get_trash(){

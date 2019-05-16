@@ -50,7 +50,6 @@ int process_options(char *argv[], const int argc){
 					char *ptr = ++argv[1];
 					N = atoi(ptr);
 					M = 1;
-					printf("my n is: %d, my M is: %d\n", N, M);
 				}
 				else{
 					printf("Invalid option, not a number\n");
@@ -148,7 +147,6 @@ int print_lines(char *filename, int n, int m){
 	}
 	
 	// print m our of n
-	printf("%s exists\n", filename);
 	while(bVal){
 		if(print_n(in, m) == 0){
 			return 1;
@@ -163,7 +161,6 @@ int print_lines(char *filename, int n, int m){
 }
 
 int main(int argc, char *argv[], char *envp[]){
-	printf("Hello World, every.c here...\n");
 	// local variables
 	int is_option = 0;
 	int curr_position = 0;
@@ -172,7 +169,6 @@ int main(int argc, char *argv[], char *envp[]){
 
 	// handle options
 	if(process_options(argv, argc) == 1){ // there are options
-		printf("The current options are: %d, %d\n", N, M);	
 		if(!is_valid_options(M,N)){
 			printf("Invalid Options\n");
 			exit(1);
@@ -180,14 +176,12 @@ int main(int argc, char *argv[], char *envp[]){
 		is_option = 1;
 	}
 	else if(get_every() != NULL){ // check is every env var is specified
-		printf("EVERY is %s\n", get_every());	
 		char *every_args[3];
 		every_args[0] = "";
 		every_args[1] = get_every();
 		every_args[2] = NULL;
 
 		if(process_options(every_args, 2) == 1){ // there are options
-			printf("The current options are: %d, %d\n", N, M);	
 			if(!is_valid_options(M,N)){
 				printf("Invalid Options\n");
 				exit(1);
@@ -195,31 +189,25 @@ int main(int argc, char *argv[], char *envp[]){
 		}
 	}
 	else{ // default option settings
-		printf("Default options: m = %d, n = %d\n", M, N);
 		if(!is_valid_options(M,N)){
-			printf("Invalid default Options, fix the code, stupid programmer\n");
+			printf("Invalid default Options\n");
 			exit(1);
 		}
 	}
 
 	// get the list of files
-	printf(" ---- printing files ---- \n");
-
-	pnl();
 
 	// handle each file appropriately
 	if(argv[is_option+1] != NULL){
-		printf("handling files...\n");
 		for(int i = is_option+1; argv[i] != NULL; i++){
-			printf("%s ", argv[i]);
 			if(print_lines(argv[i], N, M) < 0){
 				printf("Error, reading from file, mabye doesnt exist?\n");
 				exit(1);
 			}
 		}
+		pnl();
 	}
 	else{ // process from stdin
-		printf("reading from stdin\n");
 		proc_stdin(M, N);
 	}
 	return 0;
